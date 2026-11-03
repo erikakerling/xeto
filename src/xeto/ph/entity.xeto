@@ -1628,16 +1628,15 @@ PhEntity: Entity <abstract> {
   // Error description when [ph::PhEntity.writeStatus] indicates error condition
   *writeErr: Str <transient>
 
-  // Current priority level for [ph::PhEntity.writeVal] as number between 1 and 17.
-  // The value 17 indicates the relinquish default value.
+  // Level of the last effective [ph::PhEntity.writeVal] as number between 1 and 18.
+  // The value 17 indicates relinquish default; 18 indicates an explicit request.
   *writeLevel: Number <transient>
 
   // Current status of a writable point output
   *writeStatus: WriteStatus <transient>
 
-  // Current desired value to write to output.  This is the current "winning"
-  // value of the priority array indicated by [ph::PhEntity.writeLevel].  If this tag
-  // is missing then the winning value is null/auto.
+  // Last effective write value selected by priority arbitration or an explicit
+  // level 18 request. If this tag is missing then the effective value is null/auto.
   *writeVal: Obj <transient>
 
   // Extended string - type name and string value encoding.

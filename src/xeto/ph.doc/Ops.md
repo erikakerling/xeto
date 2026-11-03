@@ -293,9 +293,11 @@ To read the priority array:
 **Request (read)**: a grid with a single row and following columns:
   - `id`: Ref identifier of writable point
 
-**Response**: returns a grid with current priority array state with following
-columns:
-  - `level`: number from 1 - 17 (17 is default)
+**Response**: returns a grid with current priority array state and last effective
+`writeVal`/`writeLevel` metadata, with following columns:
+  - `level`: number from 1 - 18 (17 is default); row 18 retains the last request
+    in memory, even if masked. It is never a fallback and is not persisted
+    or restored after restart.
   - `levelDis`: human description of level
   - `val`: current value at level or null
   - `who`: who last controlled the value at this level
@@ -304,8 +306,10 @@ To write a level in the priority array:
 
 **Request (write)**: a grid with a single row and following columns:
   - `id`: Ref identifier of writable point
-  - `level`: Number from 1-17 for level to write
-  - `val`: value to write or null to auto the level
+  - `level`: Number from 1-18; level 18 is selected only for an explicit non-null
+    request when levels 1-17 are empty, including repeated values
+  - `val`: value to write or null to auto the level; null at level 18 clears
+    its stored value
   - `who`: optional username/application name performing the write,
     otherwise authenticated user display name is used
   - `duration`: Number with duration unit if setting level 8
