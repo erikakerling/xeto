@@ -71,6 +71,7 @@ The following levels have special behavior:
  - **Level 1**: highest priority reserved for emergency overrides
  - **Level 8**: manual override with ability to set timer to expire back to auto
  - **Default**: implicitly acts as level 17 for relinquish default
+ - **Level 18**: explicit write request when levels 1-17 are empty
 
 The priority array provides for contention resolution when many different
 control applications may be vying for control of a given point. Low level
@@ -79,19 +80,23 @@ users can override at level 8. But a higher levels like 2 to 7 can be used
 to trump a user override (for example a demand response energy routine
 that requires higher priority).
 
-The actual value to write is resolved by starting at level 1 and working down
-to relinquish default to find the first non-null value. It is possible for
-all levels to be null, in which case the overall write output is null (which
+For writes to levels 1-17, the actual value to write is resolved by starting
+at level 1 and working down to relinquish default to find the first non-null
+value. If all these levels are null, the overall write output is null (which
 in turn may be auto/null to another system). Anytime a null value is written
 to a priority level, we say that level has been set to auto or released (this
 allows the next highest level to take command of the output).
 
+Level 18 is not retained in the priority array and never provides a fallback.
+It is not persisted or restored after restart. See [pointWrite](Ops#pointwrite)
+for request handling.
+
 The following tags are used to model the writable state of a point:
 
-  - [ph::PhEntity.writeVal]: this is the current "winning" value of the priority array;
-    or if this tag is missing, then the winning value is null
-  - [ph::PhEntity.writeLevel]: number from 1 to 17 indicates the winning priority
-    array level
+  - [ph::PhEntity.writeVal]: last effective write value;
+    or if this tag is missing, then the effective value is null
+  - [ph::PhEntity.writeLevel]: number from 1 to 18 indicating the last effective
+    write level
   - [ph::PhEntity.writeStatus]: status of the server's ability to write the last
     value to the output device: ok, disabled, down, fault.
   - [ph::PhEntity.writeErr]: indicates the error message if writeStatus is an error
